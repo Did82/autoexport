@@ -1,0 +1,39 @@
+services:
+    backend:
+        container_name: backend
+        build:
+            context: ./packages/backend
+            dockerfile: Dockerfile
+        ports:
+            - '3001:3001'
+        networks:
+            - export
+        volumes:
+            - /mnt/ftp:/data/src
+            - /mnt/smb:/data/trg
+            # - /Users/dima/test/src:/data/src
+            # - /Users/dima/test/trg:/data/trg
+            - ./packages/backend/prisma:/app/prisma
+            # - sqlite-data:/app/prisma/dev.db
+        environment:
+            - NODE_ENV=production
+        restart: unless-stopped
+
+    frontend:
+        container_name: frontend
+        build:
+            context: ./packages/frontend
+            dockerfile: Dockerfile
+        ports:
+            - '3000:3000'
+        networks:
+            - export
+        environment:
+            - NODE_ENV=production
+        depends_on:
+            - backend
+        restart: unless-stopped
+
+networks:
+    export:
+        external: true

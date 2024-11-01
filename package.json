@@ -1,0 +1,12 @@
+{
+  "name": "autoexport",
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev": "bun --filter '*' dev",
+    "build": "bun --filter '*' build",
+    "test": "bun --filter '*' test",
+    "lint": "bun --filter '*' lint",
+    "format": "bun --filter '*' format"
+  }
+}
