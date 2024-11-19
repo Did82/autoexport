@@ -4,19 +4,17 @@ services:
         build:
             context: ./packages/backend
             dockerfile: Dockerfile
-        ports:
-            - '3001:3001'
-        # networks:
-        #     - export
-        volumes:
-            - /mnt/ftp:/data/src
-            - /mnt/smb:/data/trg
-            # - /Users/dima/test/src:/data/src
-            # - /Users/dima/test/trg:/data/trg
-            - ./packages/backend/prisma:/app/prisma
-            # - sqlite-data:/app/prisma/dev.db
         environment:
             - NODE_ENV=production
+            - SRC_PATH=${SRC_PATH}
+            - TRG_PATH=${TRG_PATH}
+        ports:
+            - '3001:3001'
+        volumes:
+            - SRC_PATH:/data/src
+            - TRG_PATH:/data/trg
+            - ./packages/backend/prisma:/app/prisma
+            # - sqlite-data:/app/prisma/dev.db
         restart: unless-stopped
 
     frontend:
@@ -26,13 +24,8 @@ services:
             dockerfile: Dockerfile
         ports:
             - '3000:3000'
-        # networks:
-        #     - export
         environment:
             - NODE_ENV=production
         depends_on:
             - backend
         restart: unless-stopped
-# networks:
-#     export:
-#         external: true
