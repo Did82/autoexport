@@ -4,7 +4,10 @@ import { getDateNDaysAgo, getDiskUsage } from './libs/utils';
 import { validateAndNormalizePath } from './libs/securityUtils';
 import { copyDirService } from './services/copy.service';
 import { prisma } from './libs/db';
-import { spaceControlService } from './services/delete.service';
+import {
+    deleteRedundantDirectories,
+    spaceControlService,
+} from './services/delete.service';
 import { cleanupService } from './services/cleanup.service';
 import { config } from './libs/config';
 
@@ -118,6 +121,15 @@ const app = new Elysia()
             pattern: Patterns.EVERY_DAY_AT_5AM,
             async run() {
                 await cleanupService();
+            },
+        })
+    )
+    .use(
+        cron({
+            name: 'deleteRedundantDirectories',
+            pattern: Patterns.EVERY_DAY_AT_6AM,
+            async run() {
+                await deleteRedundantDirectories(validatedSrc);
             },
         })
     )

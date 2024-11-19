@@ -1,34 +1,55 @@
-import { readdir } from "node:fs/promises";
-import path from "node:path";
-import { prisma } from "../libs/db";
-import { getDiskUsage, getOldestDate } from "../libs/utils";
-import { deleteDir } from "../libs/delete";
+import { readdir } from 'node:fs/promises';
+import path from 'node:path';
+import { prisma } from '../libs/db';
+import {
+    getDiskUsage,
+    getFilteredDirectories,
+    getOldestDate,
+} from '../libs/utils';
+import { deleteDir } from '../libs/delete';
 
 export const spaceControlService = async (target: string, limit: number) => {
-	let { percentage } = await getDiskUsage(target);
+    let { percentage } = await getDiskUsage(target);
 
-	if (percentage <= limit) {
-		console.log(
-			`No need to delete any directory, disk usage on ${target} is ${percentage}%`,
-		);
-		return;
-	}
+    if (percentage <= limit) {
+        console.log(
+            `No need to delete any directory, disk usage on ${target} is ${percentage}%`
+        );
+        return;
+    }
 
-	while (percentage > limit) {
-		const dirs = await readdir(target);
-		const oldestDate = getOldestDate(dirs);
-		const oldestDir = path.join(target, oldestDate);
-		const result = await deleteDir(oldestDir);
-		({ percentage } = await getDiskUsage(target));
-		const savedResult = await prisma.deleteLog.create({
-			data: {
-				deletedDir: result.deletedDir,
-				totalTime: result.totalTime,
-				percentageAfterDelete: percentage,
-			},
-		});
-		console.log(savedResult);
-	}
+    while (percentage > limit) {
+        const dirs = await readdir(target);
+        const oldestDate = getOldestDate(dirs);
+        const oldestDir = path.join(target, oldestDate);
+        const result = await deleteDir(oldestDir);
+        ({ percentage } = await getDiskUsage(target));
+        const savedResult = await prisma.deleteLog.create({
+            data: {
+                deletedDir: result.deletedDir,
+                totalTime: result.totalTime,
+                percentageAfterDelete: percentage,
+            },
+        });
+        console.log(savedResult);
+    }
 
-	return;
+    return;
+};
+
+export const deleteRedundantDirectories = async (target: string) => {
+    const dirs = await getFilteredDirectories(target);
+    dirs.forEach(async (dir) => {
+        const dirPath = path.join(target, dir);
+        const result = await deleteDir(dirPath);
+        const { percentage } = await getDiskUsage(target);
+        const savedResult = await prisma.deleteLog.create({
+            data: {
+                deletedDir: result.deletedDir,
+                totalTime: result.totalTime,
+                percentageAfterDelete: percentage,
+            },
+        });
+        console.log(savedResult);
+    });
 };
