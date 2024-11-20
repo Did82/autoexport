@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json .
 COPY bun.lockb .
 
-RUN bun install --production
+RUN bun install
 
 COPY src src
 COPY config.json .
@@ -15,6 +15,6 @@ COPY tsconfig.json .
 RUN bunx prisma generate
 
 ENV NODE_ENV=production
-CMD ["bun", "src/index.ts"]
+CMD ["bun", "run", "start"]
 
 EXPOSE 3001
