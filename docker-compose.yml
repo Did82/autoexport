@@ -1,38 +1,55 @@
 services:
-    backend:
-        container_name: backend
+    export:
+        container_name: export
         build:
-            context: ./packages/backend
+            context: .
             dockerfile: Dockerfile
         environment:
             - NODE_ENV=production
             - SRC_PATH=${SRC_PATH}
             - TRG_PATH=${TRG_PATH}
         ports:
-            - '3001:3001'
+            - '3000:3000'
         volumes:
             - SRC_PATH:/data/src
             - TRG_PATH:/data/trg
-            - ./packages/backend/prisma:/app/prisma
-            # - sqlite-data:/app/prisma/dev.db
         restart: unless-stopped
         networks:
             - export
+    # backend:
+    #     container_name: backend
+    #     build:
+    #         context: ./packages/backend
+    #         dockerfile: Dockerfile
+    #     environment:
+    #         - NODE_ENV=production
+    #         - SRC_PATH=${SRC_PATH}
+    #         - TRG_PATH=${TRG_PATH}
+    #     ports:
+    #         - '3001:3001'
+    #     volumes:
+    #         - SRC_PATH:/data/src
+    #         - TRG_PATH:/data/trg
+    #         - ./packages/backend/prisma:/app/prisma
+    #         # - sqlite-data:/app/prisma/dev.db
+    #     restart: unless-stopped
+    #     networks:
+    #         - export
 
-    frontend:
-        container_name: frontend
-        build:
-            context: ./packages/frontend
-            dockerfile: Dockerfile
-        ports:
-            - '3000:3000'
-        environment:
-            - NODE_ENV=production
-        depends_on:
-            - backend
-        restart: unless-stopped
-        networks:
-            - export
+    # frontend:
+    #     container_name: frontend
+    #     build:
+    #         context: ./packages/frontend
+    #         dockerfile: Dockerfile
+    #     ports:
+    #         - '3000:3000'
+    #     environment:
+    #         - NODE_ENV=production
+    #     depends_on:
+    #         - backend
+    #     restart: unless-stopped
+    #     networks:
+    #         - export
 
     # nginx:
     #     container_name: nginx
@@ -45,9 +62,9 @@ services:
     #     networks:
     #         - export
 
-volumes:
-    ftp:
-    smb:
+# volumes:
+#     ftp:
+#     smb:
 
 networks:
     export:

@@ -7,8 +7,8 @@ import { DeleteLogsTab } from './DeleteLogsTab';
 import { ErrorLogsTab } from './ErrorLogsTab';
 import { ModeToggle } from './ThemeToggle';
 
-// const server = 'http://localhost:3001';
-const server = 'http://backend:3001';
+const server = 'http://localhost:3001';
+// const server = 'http://backend:3001';
 // const server = 'http://0.0.0.0:3001';
 
 async function getSpaceData(): Promise<SpaceData> {
