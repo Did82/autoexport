@@ -16,6 +16,8 @@ services:
             - ./packages/backend/prisma:/app/prisma
             # - sqlite-data:/app/prisma/dev.db
         restart: unless-stopped
+        networks:
+            - export
 
     frontend:
         container_name: frontend
@@ -29,3 +31,24 @@ services:
         depends_on:
             - backend
         restart: unless-stopped
+        networks:
+            - export
+
+    # nginx:
+    #     container_name: nginx
+    #     image: nginx:alpine
+    #     ports:
+    #         - '80:80'
+    #     volumes:
+    #         - ./nginx.conf:/etc/nginx/nginx.conf
+    #     restart: unless-stopped
+    #     networks:
+    #         - export
+
+volumes:
+    ftp:
+    smb:
+
+networks:
+    export:
+        driver: bridge
