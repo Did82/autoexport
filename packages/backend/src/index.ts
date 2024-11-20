@@ -45,8 +45,7 @@ const app = new Elysia()
     .use(
         cron({
             name: 'everyYesterday',
-            timezone: 'Europe/Moscow',
-            pattern: Patterns.everyDayAt('22:30'),
+            pattern: Patterns.EVERY_DAY_AT_10PM,
             async run() {
                 const yesterdayDir = getDateNDaysAgo(1);
                 await copyDirService(
@@ -61,7 +60,6 @@ const app = new Elysia()
             name: 'srcSpaceControl',
             timezone: 'Europe/Moscow',
             pattern: Patterns.EVERY_DAY_AT_3AM,
-            // pattern: Patterns.everyDayAt('10:20'),
             async run() {
                 try {
                     await spaceControlService(src, limit);
@@ -95,8 +93,6 @@ const app = new Elysia()
     .use(
         cron({
             name: 'destSpaceControl',
-            timezone: 'Europe/Moscow',
-            // pattern: Patterns.everyDayAt('10:30'),
             pattern: Patterns.EVERY_DAY_AT_4AM,
             async run() {
                 try {
