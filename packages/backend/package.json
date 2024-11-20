@@ -5,7 +5,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",
     "start": "bun src/index.ts",
-    "build": "bunx prisma generate",
+    "build": "bunx prisma db push",
     "copy": "bun src/cli/copy_all.ts"
   },
   "dependencies": {
