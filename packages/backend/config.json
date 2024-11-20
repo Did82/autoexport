@@ -1,10 +1,6 @@
 {
-	// "src": "/Users/dima/test/src",
-    // "dest": "/Users/dima/test/trg",
 	"src": "/data/src",
 	"dest": "/data/trg",
-	// "src": "/mnt/ftp",
-	// "dest": "/mnt/smb",
 	"limit": 78,
 	"concurrency": 1,
 	"cleanupDays": 90
