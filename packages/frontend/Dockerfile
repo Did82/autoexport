@@ -52,6 +52,8 @@ EXPOSE 3000
 # Установка переменных окружения
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV TURBO_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Запуск приложения
 # CMD ["node", "server.js"]

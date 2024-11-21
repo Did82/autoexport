@@ -1,4 +1,7 @@
-FROM oven/bun
+# FROM oven/bun
+FROM imbios/bun-node:latest
+ENV TURBO_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 WORKDIR /app
 
