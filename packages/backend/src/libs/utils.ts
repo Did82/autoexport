@@ -60,13 +60,13 @@ const filterOldDatesOneYearAgo = (dates: string[]) => {
 const getOldestDate = (dates: string[]) => {
     return dates.reduce((oldest, current) => {
         return oldest < current ? oldest : current;
-    });
+    }, dates[0] || '');
 };
 
 const getNewestDate = (dates: string[]) => {
     return dates.reduce((newest, current) => {
         return newest > current ? newest : current;
-    });
+    }, dates[0] || '');
 };
 
 const getDiskUsage = async (folderPath: string) => {
