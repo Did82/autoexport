@@ -9,13 +9,13 @@ services:
             - SRC_PATH=${SRC_PATH}
             - TRG_PATH=${TRG_PATH}
         ports:
-            - '3000:3000'
+            - '80:3000'
         volumes:
-            - SRC_PATH:/data/src
-            - TRG_PATH:/data/trg
+            - ${SRC_PATH}:/mnt/ftp
+            - ${TRG_PATH}:/mnt/smb
         restart: unless-stopped
-        networks:
-            - export
+        # networks:
+        #     - export
     # backend:
     #     container_name: backend
     #     build:
@@ -61,11 +61,10 @@ services:
     #     restart: unless-stopped
     #     networks:
     #         - export
-
 # volumes:
 #     ftp:
 #     smb:
 
-networks:
-    export:
-        driver: bridge
+# networks:
+#     export:
+#         driver: bridge

@@ -144,7 +144,16 @@ const app = new Elysia()
             return { error: 'Failed to get disk usage' };
         }
     })
-    .get('/config', () => config)
+    .get('/config', () => {
+        const srcToReturn = process.env.SRC_PATH;
+        const trgToReturn = process.env.TRG_PATH;
+        const configToReturn = {
+            ...config,
+            src: srcToReturn,
+            dest: trgToReturn,
+        };
+        return configToReturn;
+    })
     .get('/copy', async () => {
         try {
             return await prisma.copyLog.findMany();

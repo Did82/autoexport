@@ -7,43 +7,84 @@ import { DeleteLogsTab } from './DeleteLogsTab';
 import { ErrorLogsTab } from './ErrorLogsTab';
 import { ModeToggle } from './ThemeToggle';
 
-const server = 'http://localhost:3001';
+// const server = 'http://localhost:3001';
+const server = 'http://export:3001';
 // const server = 'http://backend:3001';
 // const server = 'http://0.0.0.0:3001';
 
-async function getSpaceData(): Promise<SpaceData> {
-    const response = await fetch(`${server}/space`, {
-        cache: 'no-store',
-    });
-    return response.json();
+async function getSpaceData(): Promise<SpaceData | null> {
+    try {
+        const response = await fetch(`${server}/space`, {
+            cache: 'no-store',
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Ошибка при получении данных о пространстве:', error);
+        return null;
+    }
 }
 
 async function getCopyLogs(): Promise<CopyLog[]> {
-    const response = await fetch(`${server}/copy`, {
-        cache: 'no-store',
-    });
-    return response.json();
+    try {
+        const response = await fetch(`${server}/copy`, {
+            cache: 'no-store',
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Ошибка при получении логов копирования:', error);
+        return [];
+    }
 }
 
 async function getDeleteLogs(): Promise<DeleteLog[]> {
-    const response = await fetch(`${server}/delete`, {
-        cache: 'no-store',
-    });
-    return response.json();
+    try {
+        const response = await fetch(`${server}/delete`, {
+            cache: 'no-store',
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Ошибка при получении логов удаления:', error);
+        return [];
+    }
 }
 
 async function getErrorLogs(): Promise<ErrorLog[]> {
-    const response = await fetch(`${server}/errors`, {
-        cache: 'no-store',
-    });
-    return response.json();
+    try {
+        const response = await fetch(`${server}/errors`, {
+            cache: 'no-store',
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Ошибка при получении логов ошибок:', error);
+        return [];
+    }
 }
 
-async function getConfig(): Promise<Config> {
-    const response = await fetch(`${server}/config`, {
-        cache: 'no-store',
-    });
-    return response.json();
+async function getConfig(): Promise<Config | null> {
+    try {
+        const response = await fetch(`${server}/config`, {
+            cache: 'no-store',
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Ошибка при получении конфигурации:', error);
+        return null;
+    }
 }
 
 export async function Dashboard() {
@@ -63,7 +104,7 @@ export async function Dashboard() {
                 <ModeToggle />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {spaceData && (
+                {spaceData && config ? (
                     <>
                         <DiskUsageCard
                             title="Сервер"
@@ -76,6 +117,10 @@ export async function Dashboard() {
                             config={{ path: config.dest, limit: config.limit }}
                         />
                     </>
+                ) : (
+                    <div className="col-span-2 text-center p-4">
+                        Ошибка при загрузке данных о дисковом пространстве
+                    </div>
                 )}
             </div>
 

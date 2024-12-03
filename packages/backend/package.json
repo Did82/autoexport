@@ -1,5 +1,5 @@
 {
-  "name": "app2",
+  "name": "export-back",
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@elysiajs/cron": "^1.1.1",
-    "@prisma/client": "^5.21.1",
+    "@prisma/client": "latest",
     "elysia": "latest",
     "es-toolkit": "^1.26.0",
     "ora": "^8.1.0"
@@ -18,7 +18,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
     "bun-types": "latest",
-    "prisma": "^5.21.1"
+    "prisma": "^latest"
   },
   "module": "src/index.js"
 }
