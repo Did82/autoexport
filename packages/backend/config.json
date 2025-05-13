@@ -1,7 +1,0 @@
-{
-	"src": "/data/src",
-	"dest": "/data/trg",
-	"limit": 78,
-	"concurrency": 1,
-	"cleanupDays": 90
-}

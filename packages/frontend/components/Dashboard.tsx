@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Config, CopyLog, DeleteLog, ErrorLog, SpaceData } from '@/types/types';
-import { DiskUsageCard } from './DiskUsageCard';
 import { CopyLogsTab } from './CopyLogsTab';
 import { DeleteLogsTab } from './DeleteLogsTab';
+import { DiskUsageCard } from './DiskUsageCard';
 import { ErrorLogsTab } from './ErrorLogsTab';
 import { ModeToggle } from './ThemeToggle';
 

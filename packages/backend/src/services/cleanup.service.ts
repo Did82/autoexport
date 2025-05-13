@@ -1,10 +1,11 @@
 import { prisma } from '../libs/db';
-import config from '../../config.json';
 
-const { cleanupDays } = config;
-const cleanupLt = new Date(Date.now() - cleanupDays * 24 * 60 * 60 * 1000);
+// const { cleanupDays } = config;
+// const cleanupLt = new Date(Date.now() - cleanupDays * 24 * 60 * 60 * 1000);
 
-export const cleanupService = async () => {
+export const cleanupService = async (cleanupDays: number) => {
+    const cleanupLt = new Date(Date.now() - cleanupDays * 24 * 60 * 60 * 1000);
+
     try {
         await prisma.deleteLog.deleteMany({
             where: {

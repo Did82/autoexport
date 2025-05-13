@@ -39,7 +39,7 @@ export const spaceControlService = async (target: string, limit: number) => {
 
 export const deleteRedundantDirectories = async (target: string) => {
     const dirs = await getFilteredDirectories(target);
-    dirs.forEach(async (dir) => {
+    dirs.forEach(async (dir: string) => {
         const dirPath = path.join(target, dir);
         const result = await deleteDir(dirPath);
         const { percentage } = await getDiskUsage(target);

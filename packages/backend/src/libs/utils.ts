@@ -93,7 +93,7 @@ const getDiskUsage = async (folderPath: string) => {
 
 const getFilteredDirectories = async (folderPath: string) => {
     const dirs = await readdir(folderPath);
-    return dirs.filter((dir) => !dir.match(/^\d{8}$/));
+    return dirs.filter((dir: string) => !dir.match(/^\d{8}$/));
 };
 
 export {

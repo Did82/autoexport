@@ -1,32 +1,17 @@
 import { cron, Patterns } from '@elysiajs/cron';
-import { Elysia } from 'elysia';
-import { getDateNDaysAgo, getDiskUsage } from './libs/utils';
-import { validateAndNormalizePath } from './libs/securityUtils';
-import { copyDirService } from './services/copy.service';
+import { Elysia, t } from 'elysia';
 import { prisma } from './libs/db';
+import { validateAndNormalizePath } from './libs/securityUtils';
+import { getDateNDaysAgo, getDiskUsage } from './libs/utils';
+import { cleanupService } from './services/cleanup.service';
+import { getConfig, updateConfig } from './services/config.service';
+import { copyDirService } from './services/copy.service';
 import {
     deleteRedundantDirectories,
     spaceControlService,
 } from './services/delete.service';
-import { cleanupService } from './services/cleanup.service';
-import { config } from './libs/config';
 
-let validatedSrc: string;
-let validatedDest: string;
-
-const { src, dest, limit } = config;
-
-try {
-    validatedSrc = validateAndNormalizePath(src);
-    validatedDest = validateAndNormalizePath(dest);
-} catch (error) {
-    console.error(
-        `Configuration error: ${
-            error instanceof Error ? error.message : 'Unknown error'
-        }`
-    );
-    process.exit(1);
-}
+const config = await getConfig();
 
 const app = new Elysia()
     .use(
@@ -34,10 +19,15 @@ const app = new Elysia()
             name: 'everyHour',
             pattern: Patterns.everyHours(1),
             async run() {
+                if (!config) {
+                    console.error('No config found');
+                    return;
+                }
+                const { src, dest } = config;
                 const todayDir = getDateNDaysAgo(0);
                 await copyDirService(
-                    `${validatedSrc}/${todayDir}`,
-                    `${validatedDest}/${todayDir}`
+                    `${src}/${todayDir}`,
+                    `${dest}/${todayDir}`
                 );
             },
         })
@@ -47,10 +37,15 @@ const app = new Elysia()
             name: 'everyYesterday',
             pattern: Patterns.EVERY_DAY_AT_10PM,
             async run() {
+                if (!config) {
+                    console.error('No config found');
+                    return;
+                }
+                const { src, dest } = config;
                 const yesterdayDir = getDateNDaysAgo(1);
                 await copyDirService(
-                    `${validatedSrc}/${yesterdayDir}`,
-                    `${validatedDest}/${yesterdayDir}`
+                    `${src}/${yesterdayDir}`,
+                    `${dest}/${yesterdayDir}`
                 );
             },
         })
@@ -61,6 +56,11 @@ const app = new Elysia()
             timezone: 'Europe/Moscow',
             pattern: Patterns.EVERY_DAY_AT_3AM,
             async run() {
+                if (!config) {
+                    console.error('No config found');
+                    return;
+                }
+                const { src, limit } = config;
                 try {
                     await spaceControlService(src, limit);
                 } catch (error) {
@@ -95,6 +95,11 @@ const app = new Elysia()
             name: 'destSpaceControl',
             pattern: Patterns.EVERY_DAY_AT_4AM,
             async run() {
+                if (!config) {
+                    console.error('No config found');
+                    return;
+                }
+                const { dest, limit } = config;
                 try {
                     await spaceControlService(dest, limit);
                 } catch (error) {
@@ -116,7 +121,12 @@ const app = new Elysia()
             name: 'cleanup',
             pattern: Patterns.EVERY_DAY_AT_5AM,
             async run() {
-                await cleanupService();
+                if (!config) {
+                    console.error('No config found');
+                    return;
+                }
+                const { cleanupDays } = config;
+                await cleanupService(cleanupDays);
             },
         })
     )
@@ -125,15 +135,25 @@ const app = new Elysia()
             name: 'deleteRedundantDirectories',
             pattern: Patterns.EVERY_DAY_AT_6AM,
             async run() {
-                await deleteRedundantDirectories(validatedSrc);
+                if (!config) {
+                    console.error('No config found');
+                    return;
+                }
+                const { src } = config;
+                await deleteRedundantDirectories(src);
             },
         })
     )
     .get('/', () => 'Hello Elysia')
     .get('/space', async () => {
+        if (!config) {
+            console.error('No config found');
+            return;
+        }
+        const { src, dest } = config;
         try {
-            const srcDiskUsage = await getDiskUsage(validatedSrc);
-            const targetDiskUsage = await getDiskUsage(validatedDest);
+            const srcDiskUsage = await getDiskUsage(src);
+            const targetDiskUsage = await getDiskUsage(dest);
             return { srcDiskUsage, targetDiskUsage };
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -144,15 +164,20 @@ const app = new Elysia()
             return { error: 'Failed to get disk usage' };
         }
     })
-    .get('/config', () => {
-        const srcToReturn = process.env.SRC_PATH;
-        const trgToReturn = process.env.TRG_PATH;
-        const configToReturn = {
-            ...config,
-            src: srcToReturn,
-            dest: trgToReturn,
-        };
-        return configToReturn;
+    .get('/config', async () => {
+        try {
+            const confitToreturn = await getConfig();
+            if (!confitToreturn) {
+                console.error('No config found');
+                return { error: 'No config found' };
+            }
+            return confitToreturn;
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error(`Error getting config: ${error.message}`);
+            }
+            return { error: 'Failed to get config' };
+        }
     })
     .get('/copy', async () => {
         try {
@@ -190,6 +215,37 @@ const app = new Elysia()
             return { error: 'Failed to get error logs' };
         }
     })
+    .post(
+        '/config',
+        async ({ body }) => {
+            try {
+                const validatedSrc = validateAndNormalizePath(body.src);
+                const validatedDest = validateAndNormalizePath(body.dest);
+                const validatedBody = {
+                    ...body,
+                    src: validatedSrc,
+                    dest: validatedDest,
+                };
+                return await updateConfig(validatedBody);
+            } catch (error) {
+                if (error instanceof Error) {
+                    console.error(`Error updating config: ${error.message}`);
+                } else {
+                    console.error('Unknown error updating config');
+                }
+                return { error: 'Failed to update config' };
+            }
+        },
+        {
+            body: t.Object({
+                src: t.String(),
+                dest: t.String(),
+                limit: t.Number(),
+                concurrency: t.Number(),
+                cleanupDays: t.Number(),
+            }),
+        }
+    )
     .listen(3001);
 
 console.log(

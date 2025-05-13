@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -32,4 +33,14 @@ model ErrorLog {
   createdAt DateTime @default(now())
   errorMsg  String
   targetDir String
+}
+
+model Config {
+  id          Int      @id @default(1)
+  src         String
+  dest        String
+  limit       Int
+  concurrency Int
+  cleanupDays Int
+  updatedAt   DateTime @updatedAt
 }
