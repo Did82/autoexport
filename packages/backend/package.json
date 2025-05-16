@@ -6,19 +6,20 @@
     "dev": "bun run --watch src/index.ts",
     "start": "bun src/index.ts",
     "build": "bunx prisma generate",
-    "copy": "bun src/cli/copy_all.ts"
+    "copy": "bun src/cli/copy_all.ts",
+    "prisma:generate": "bunx prisma generate"
   },
   "dependencies": {
-    "@elysiajs/cron": "^1.1.1",
-    "@prisma/client": "^6.0.1",
-    "elysia": "^1.1.26",
-    "es-toolkit": "^1.30.1",
-    "ora": "^8.1.1"
+    "@elysiajs/cron": "^1.3.0",
+    "@prisma/client": "^6.7.0",
+    "elysia": "^1.3.1",
+    "es-toolkit": "^1.37.2",
+    "ora": "^8.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "bun-types": "^1.1.38",
-    "prisma": "^6.0.1"
+    "bun-types": "^1.2.13",
+    "prisma": "^6.7.0"
   },
   "module": "src/index.js"
 }

@@ -8,6 +8,7 @@
     "test": "bun --filter '*' test",
     "lint": "bun --filter '*' lint",
     "format": "bun --filter '*' format",
-    "start": "bun --filter '*' start"
+    "start": "bun --filter '*' start",
+    "prisma:generate": "bun --filter export-back prisma:generate"
   }
 }

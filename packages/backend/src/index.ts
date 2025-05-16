@@ -1,5 +1,6 @@
 import { cron, Patterns } from '@elysiajs/cron';
 import { Elysia, t } from 'elysia';
+import fs from 'node:fs';
 import { prisma } from './libs/db';
 import { validateAndNormalizePath } from './libs/securityUtils';
 import { getDateNDaysAgo, getDiskUsage } from './libs/utils';
@@ -11,14 +12,17 @@ import {
     spaceControlService,
 } from './services/delete.service';
 
-const config = await getConfig();
-
 const app = new Elysia()
+    .onError(({ error }) => {
+        console.error(error);
+        return { error: 'Internal server error' };
+    })
     .use(
         cron({
             name: 'everyHour',
             pattern: Patterns.everyHours(1),
             async run() {
+                const config = await getConfig();
                 if (!config) {
                     console.error('No config found');
                     return;
@@ -37,6 +41,7 @@ const app = new Elysia()
             name: 'everyYesterday',
             pattern: Patterns.EVERY_DAY_AT_10PM,
             async run() {
+                const config = await getConfig();
                 if (!config) {
                     console.error('No config found');
                     return;
@@ -56,6 +61,7 @@ const app = new Elysia()
             timezone: 'Europe/Moscow',
             pattern: Patterns.EVERY_DAY_AT_3AM,
             async run() {
+                const config = await getConfig();
                 if (!config) {
                     console.error('No config found');
                     return;
@@ -95,6 +101,7 @@ const app = new Elysia()
             name: 'destSpaceControl',
             pattern: Patterns.EVERY_DAY_AT_4AM,
             async run() {
+                const config = await getConfig();
                 if (!config) {
                     console.error('No config found');
                     return;
@@ -121,6 +128,7 @@ const app = new Elysia()
             name: 'cleanup',
             pattern: Patterns.EVERY_DAY_AT_5AM,
             async run() {
+                const config = await getConfig();
                 if (!config) {
                     console.error('No config found');
                     return;
@@ -135,6 +143,7 @@ const app = new Elysia()
             name: 'deleteRedundantDirectories',
             pattern: Patterns.EVERY_DAY_AT_6AM,
             async run() {
+                const config = await getConfig();
                 if (!config) {
                     console.error('No config found');
                     return;
@@ -145,10 +154,27 @@ const app = new Elysia()
         })
     )
     .get('/', () => 'Hello Elysia')
+    .get('/dirs', async ({ query }) => {
+        const { path = '/mnt' } = query;
+        // Валидация: разрешить только внутри volume
+        if (!path.startsWith('/mnt')) return { dirs: [], error: 'Недоступно' };
+        try {
+            const entries = await fs.promises.readdir(path, {
+                withFileTypes: true,
+            });
+            const dirs = entries
+                .filter((e: fs.Dirent) => e.isDirectory())
+                .map((e: fs.Dirent) => e.name);
+            return { dirs };
+        } catch {
+            return { dirs: [], error: 'Ошибка доступа' };
+        }
+    })
     .get('/space', async () => {
+        const config = await getConfig();
         if (!config) {
             console.error('No config found');
-            return;
+            return { error: 'No config found' };
         }
         const { src, dest } = config;
         try {
@@ -166,12 +192,12 @@ const app = new Elysia()
     })
     .get('/config', async () => {
         try {
-            const confitToreturn = await getConfig();
-            if (!confitToreturn) {
+            const configToreturn = await getConfig();
+            if (!configToreturn) {
                 console.error('No config found');
                 return { error: 'No config found' };
             }
-            return confitToreturn;
+            return configToreturn;
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error(`Error getting config: ${error.message}`);

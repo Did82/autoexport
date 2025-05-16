@@ -9,22 +9,33 @@ COPY . .
 
 RUN bun install
 
+RUN cd packages/backend && bunx prisma generate
+
 RUN bun run build
 
 FROM oven/bun:alpine as runner
 
+# Устанавливаем пакет tzdata
+RUN apk add --no-cache tzdata
+
+# Устанавливаем часовой пояс, например, Europe/Moscow
+ENV TZ=Europe/Moscow
+
 WORKDIR /app
 
-COPY --from=builder /app .
-# COPY --from=builder /app/packages/backend ./packages/backend
-# COPY --from=builder /app/packages/frontend/.next/standalone ./.next/standalone
-# COPY --from=builder /app/packages/frontend/.next/static ./.next/static
-
-EXPOSE 3000
+# Copy necessary files
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/bun.lockb ./bun.lockb
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/node_modules ./node_modules
 
 ENV NODE_ENV=production
 ENV TURBO_TELEMETRY_DISABLED=1
 ENV NEXT_TELEMETRY_DISABLED=1
 
-CMD ["bun", "run", "start"]
+# Generate Prisma client in the final stage
+# RUN cd packages/backend && bunx prisma generate
 
+EXPOSE 3000
+
+CMD ["bun", "run", "start"]

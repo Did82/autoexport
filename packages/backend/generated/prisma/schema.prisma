@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+  output        = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model DeleteLog {
+  id                    String   @id @default(cuid())
+  createdAt             DateTime @default(now())
+  deletedDir            String
+  totalTime             Int
+  percentageAfterDelete Int
+}
+
+model CopyLog {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  copiedDir   String
+  filesCopied Int
+  totalTime   Int
+  bytesCopied String
+}
+
+model ErrorLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  errorMsg  String
+  targetDir String
+}
+
+model Config {
+  id          Int      @id @default(1)
+  src         String
+  dest        String
+  limit       Int
+  concurrency Int
+  cleanupDays Int
+  updatedAt   DateTime @updatedAt
+}

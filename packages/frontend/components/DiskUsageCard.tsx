@@ -6,9 +6,9 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { HardDrive, FolderOpen } from 'lucide-react';
-import { ConfigWithPath, DiskUsage } from '@/types/types';
 import { formatBytes } from '@/lib/utils';
+import { ConfigWithPath, DiskUsage } from '@/types/types';
+import { FolderOpen, HardDrive } from 'lucide-react';
 
 export function DiskUsageCard({
     title,
@@ -34,17 +34,17 @@ export function DiskUsageCard({
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col items-start">
                         <div className="text-3xl font-bold">
-                            {usage.percentage.toFixed(1)}%
+                            {usage?.percentage?.toFixed(1)}%
                         </div>
                         <div className="text-sm text-muted-foreground">
                             {`лимит ${config.limit}%`}
                         </div>
                     </div>
                     <div className="text-sm text-muted-foreground self-end">
-                        {formatBytes(usage.used)} / {formatBytes(usage.total)}
+                        {formatBytes(usage?.used)} / {formatBytes(usage?.total)}
                     </div>
                 </div>
-                <Progress value={usage.percentage} className="h-2 mb-4" />
+                <Progress value={usage?.percentage} className="h-2 mb-4" />
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <div className="text-sm font-medium">
@@ -52,7 +52,7 @@ export function DiskUsageCard({
                         </div>
                         <div className="text-sm text-muted-foreground flex items-center">
                             <FolderOpen className="mr-1 h-4 w-4" />
-                            {usage.oldestFolder}
+                            {usage?.oldestFolder}
                         </div>
                     </div>
                     <div>
@@ -61,7 +61,7 @@ export function DiskUsageCard({
                         </div>
                         <div className="text-sm text-muted-foreground flex items-center">
                             <FolderOpen className="mr-1 h-4 w-4" />
-                            {usage.newestFolder}
+                            {usage?.newestFolder}
                         </div>
                     </div>
                 </div>
